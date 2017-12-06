@@ -1,16 +1,8 @@
 (
 var
 annesi,
-var0=63,var1=63,var2=63,var3=63,var4=63,var5=63,var6=63,
-var7=63,var8=63,var9=63,var10=63,var11=63,var12=63,var13=63,
-var14=63,var15=63,var16=63,var17=63,var18=63,var19=63,var20=63,
-var21=63,var22=63,var23=63,var24=63,var25=63,var26=63,var27=63,
-var28=63,var29=63,var30=63,var31=63,var32=63,var33=63,var34=63,
-var35=63,var36=63,var37=63,var38=63,var39=63,var40=63,var41=63,
-var42=63,var43=63,var44=63,var45=63,var46=63,var47=63,var48=63,
-var49=63,var50=63,var51=63,var52=63,var53=63,var54=63,var55=63,
-var56=63,var57=63,var58=63,var59=63,var60=63,var61=63,var62=63,
-var63=63,var64=63,var65=63,var66=63,var67=63,var68=63,var69=63,
+vr = Array.fill(128, 63),
+helpMeh = Array.fill(128, 63),
 velglob=63, velfreq =63,
 noteArrayBD = nil,
 noteArrayCYM = nil,
@@ -38,13 +30,26 @@ headnoTOM,
 headnoEFX,
 index1,index2;
 SynthDef(\Masibo, {
-	arg out,  bufnum = 0, ratio = 1, totVol = 0.1, tottotVOLVOL = 0, amp = 1, multout, gate = 1;
+	arg out,  bufnum = 0, ratio = 1, totVol = 0.1, tottotVOLVOL = 0, amp = 1, multout, gate = 1, volMeh = 1;
 	var playbuf, out1, busout, env, snd;
 	playbuf = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * ratio, doneAction:0);
-	env =  EnvGen.ar(Env.asr, gate);
+	env =  EnvGen.ar(Env.asr, gate, volMeh);
 	DetectSilence.ar(playbuf,doneAction:2);
 	out1 = env * playbuf;
 	Out.ar(out, out1);
+}).add;
+SynthDef(\MasiboLite , {
+	arg out,  bufnum = 0, testOut, ratio = 1, totVol = 0.1, boolLPF = 0, boolHPF= 0, hpFrq = 20, lpFrq = 19000, lpRq=1, hpRq=1, tottotVOLVOL = 0, multout, gate = 1, amp = 0, fltMeh = 1, decFlt = 1;
+	var playbuf, out1, busout, env, snd, envFlt;
+	playbuf = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * ratio, doneAction:0);
+	env =  EnvGen.ar(Env.asr(0), gate, (totVol + amp -9 + tottotVOLVOL).dbamp);
+	envFlt= EnvGen.ar(Env.linen(decFlt,1.3,1,curve: -4), gate, fltMeh);
+	playbuf = BLowPass.ar(playbuf,freq:lpFrq + (envFlt * boolLPF),rq:lpRq);
+	playbuf = BHiPass.ar(playbuf,freq:hpFrq + (envFlt * boolHPF),rq:hpRq);
+	DetectSilence.ar(playbuf,doneAction:2);
+	out1 = env * playbuf;
+	Out.ar(out, [out1,out1]);
+	Out.ar(testOut, out1);
 }).add;
 SynthDef(\MasiboBDefkt, {|
 	out =0 gate= 1 denem 6 amp 1 totVol 1 tottotVOLVOL 1
@@ -87,31 +92,31 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 	{ note == 48 }   {
 		annesi = 512;
 		case
-		{(var4 > 63) && (var5 > 63) }   { annesi = 4096 }
-		{(var4 > 63) && (var5 <= 63) }  { annesi = 256 }
-		{(var4 <= 63) && (var5 > 63) }  { annesi = 128 }
-		{(var4 <= 63) && (var5 <= 63) } { annesi = 64  };
+		{(vr[4] > 63) && (vr[5] > 63) }   { annesi = 4096 }
+		{(vr[4] > 63) && (vr[5] <= 63) }  { annesi = 256 }
+		{(vr[4] <= 63) && (vr[5] > 63) }  { annesi = 128 }
+		{(vr[4] <= 63) && (vr[5] <= 63) } { annesi = 64  };
 		if(betassBD == 0,  {betassBD = 1;headnoBD = Synth(\MasiboBDefkt, [\fftRate, annesi]).onFree{betassBD = 0}});
 		if(noteArrayBD !== nil, {noteArrayBD.set(\gate, -1.001); noteArrayBD = nil});
 
-		if (var3 > 63,
-			{ headnoBD.set(\filtFreq, var3.linexp(64,127, 20, 20000), \filtType, 1) },
-			{ headnoBD.set(\filtFreq, var3.linexp(0,63, 20, 20000), \filtType, 0) });
-		if (var4 > 63,
-			{ headnoBD.set(\mixEfx, var4.linlin(64,127, 0, 40)) },
-			{ headnoBD.set(\mixEfx, var4.linlin(0,63, 40, 0)) });
-		if (var5 > 63,
-			{ headnoBD.set(\mixMy, var5.linlin(64,127, -1, 1)) },
-			{ headnoBD.set(\mixMy, var5.linlin(0,63, 1, -1)) });
+		if (vr[3] > 63,
+			{ headnoBD.set(\filtFreq, vr[3].linexp(64,127, 20, 20000), \filtType, 1) },
+			{ headnoBD.set(\filtFreq, vr[3].linexp(0,63, 20, 20000), \filtType, 0) });
+		if (vr[4] > 63,
+			{ headnoBD.set(\mixEfx, vr[4].linlin(64,127, 0, 40)) },
+			{ headnoBD.set(\mixEfx, vr[4].linlin(0,63, 40, 0)) });
+		if (vr[5] > 63,
+			{ headnoBD.set(\mixMy, vr[5].linlin(64,127, -1, 1)) },
+			{ headnoBD.set(\mixMy, vr[5].linlin(0,63, 1, -1)) });
 		headnoBD.set(
 			\amp, vel.linlin(0,127,-12,12),
-			\totVol, var2.linlin(0,127,-24,24),
-			\tottotVOLVOL, var7.linlin(0,127,-24,24),
-			\denem, var3);
+			\totVol, vr[2].linlin(0,127,-24,24),
+			\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+			\denem, vr[3]);
 		noteArrayBD = Synth.before(headnoBD, \Masibo,
 			[
-				\bufnum, ~drumBD[var0],
-				\ratio, (var1-63).midiratio,
+				\bufnum, ~drumBD[vr[0]],
+				\ratio, (vr[1]-63).midiratio,
 				\gate, 1,
 				\out, ~effektbusBD
 	]).onFree{noteArrayBD = nil};~test_MasiboBD = 1; }
@@ -119,25 +124,303 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 	{ note == 49 }   {
 		if(betassCYM == 0,  {betassCYM = 1;headnoCYM = Synth(\MasiboCYMefkt).onFree{betassCYM = 0}});
 		if(noteArrayCYM !== nil, {noteArrayCYM.set(\gate, -1.1 /*orijinal 1.02di*/); noteArrayCYM = nil});
-		if (var10 > 63,
-			{ headnoCYM.set(\freqHP, var10.linexp(64,127, 20, 20000), \freqLP, 20000) },
-			{ headnoCYM.set(\freqLP, var10.linexp(0,63, 20, 20000), \freqHP, 20) });
+		if (vr[10] > 63,
+			{ headnoCYM.set(\freqHP, vr[10].linexp(64,127, 20, 20000), \freqLP, 20000) },
+			{ headnoCYM.set(\freqLP, vr[10].linexp(0,63, 20, 20000), \freqHP, 20) });
 		headnoCYM.set(
 			\amp, vel.linlin(0,127,-12,12),
-			\samplerate, var11.linexp(0,127, 450, 44100),
-			\samplersmooth, var11.linexp(0,127, 1, 0.0001),
-			\totVol, var9.linlin(0,127,-24,24),
-			\tottotVOLVOL, var7.linlin(0,127,-24,24),
-			\limitdest, var12.linexp(0,127, 0.33, 0.01),
-			\limitamp, var12.linexp(0,127,4,110));
+			\samplerate, vr[11].linexp(0,127, 450, 44100),
+			\samplersmooth, vr[11].linexp(0,127, 1, 0.0001),
+			\totVol, vr[9].linlin(0,127,-24,24),
+			\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+			\limitdest, vr[12].linexp(0,127, 0.33, 0.01),
+			\limitamp, vr[12].linexp(0,127,4,110));
 
 		noteArrayCYM = Synth.before(headnoCYM, \Masibo,
 			[
-				\bufnum, ~drumCYM[var6],
-				\ratio, (var8-63).midiratio,
+				\bufnum, ~drumCYM[vr[6]],
+				\ratio, (vr[8]-63).midiratio,
 				\gate, 1,
 				\out, ~effektbusCYM
 	]).onFree{noteArrayCYM = nil};~test_MasiboCYM = 1; }
+	//HH lpFrq,rq:lpRq);
+	{ note == 50 }   {
+		//USE IT FOR MONO/POLY
+		//if(betassBD == 0,  {betassBD = 1;headnoBD = Synth(\MasiboBDefkt, [\fftRate, annesi]).onFree{betassBD = 0}});
+		if(noteArrayHH !== nil, {noteArrayHH.set(\gate, -1.001); noteArrayHH = nil});
+		if(vr[15] > 63,
+			{       //HPF
+				helpMeh[0] = 19000;
+				helpMeh[1] = 1;
+				helpMeh[2] = vr[15].linexp(64,127,20,19000);
+				helpMeh[3] = vr[16].linlin(0,127,1,0.001);
+				if(vr[17]> 63,
+					{helpMeh[5] = vr[17].linexp(64,127,1,19300 - helpMeh[2])},
+					{helpMeh[5] = -1 * vr[17].linexp(0,63,helpMeh[2] - 20, 1)}
+				);
+				helpMeh[4] = 0;
+			},
+			{       //LPF
+				helpMeh[0] = vr[15].linexp(0,63,20,19000);
+				helpMeh[1] = vr[16].linlin(0,127,1, 0.001);
+				helpMeh[2] = 20;
+				helpMeh[3] = 1;
+				if(vr[17]> 63,
+					{helpMeh[4] = vr[17].linexp(64,127, 1,19300 - helpMeh[0])},
+					{helpMeh[4] = -1 * vr[17].linexp(0,63,helpMeh[0] - 20, 1)}
+				);
+				helpMeh[5] = 0;
+			}
+		);
+		noteArrayHH = Synth(\MasiboLite,
+			[
+				\bufnum, ~drumHH[vr[13]],
+				\amp, vel.linlin(0,127,-12,12),
+				\totVol, vr[49].linlin(0,127,-24,24),
+				\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+				\ratio, (vr[14]-63).midiratio,
+				\lpFrq, helpMeh[0],
+				\lpRq, helpMeh[1],
+				\hpFrq, helpMeh[2],
+				\hpRq, helpMeh[3],
+				\boolLPF,helpMeh[4],
+				\boolHPF,helpMeh[5],
+				\decFlt, vr[18].linexp(0,127,0.001, 100),
+				\gate, 1,
+				\testOut, ~abcHH
+		]).onFree{noteArrayHH = nil};
+		~test_MasiboHH = 1;
+	}
+	//PRC
+	{ note == 51 }   {
+		if(noteArrayPRC !== nil, {noteArrayPRC.set(\gate, -1.001); noteArrayPRC = nil});
+		if(vr[21] > 63,
+			{       //HPF
+				helpMeh[6] = 19000;
+				helpMeh[7] = 1;
+				helpMeh[8] = vr[21].linexp(64,127,20,19000);
+				helpMeh[9] = vr[22].linlin(0,127,1,0.001);
+				if(vr[23]> 63,
+					{helpMeh[11] = vr[23].linexp(64,127,1,19300 - helpMeh[8])},
+					{helpMeh[11] = -1 * vr[23].linexp(0,63,helpMeh[8] - 20, 1)}
+				);
+				helpMeh[10] = 0;
+			},
+			{       //LPF
+				helpMeh[6] = vr[21].linexp(0,63,20,19000);
+				helpMeh[7] = vr[22].linlin(0,127,1, 0.001);
+				helpMeh[8] = 20;
+				helpMeh[9] = 1;
+				if(vr[23]> 63,
+					{helpMeh[10] = vr[23].linexp(64,127, 1,19300 - helpMeh[6])},
+					{helpMeh[10] = -1 * vr[23].linexp(0,63,helpMeh[6] - 20, 1)}
+				);
+				helpMeh[11] = 0;
+			}
+		);
+		noteArrayPRC = Synth(\MasiboLite,
+			[
+				\bufnum, ~drumPRC[vr[19]],
+				\amp, vel.linlin(0,127,-12,12),
+				\totVol, vr[50].linlin(0,127,-24,24),
+				\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+				\ratio, (vr[20]-63).midiratio,
+				\lpFrq, helpMeh[6],
+				\lpRq, helpMeh[7],
+				\hpFrq, helpMeh[8],
+				\hpRq, helpMeh[9],
+				\boolLPF,helpMeh[10],
+				\boolHPF,helpMeh[11],
+				\decFlt, vr[24].linexp(0,127,0.001, 100),
+				\gate, 1,
+				\testOut, ~abcPRC
+		]).onFree{noteArrayPRC = nil};
+		~test_MasiboPRC = 1;
+	}
+	//SD
+	{ note == 52 }   {
+		if(noteArraySD !== nil, {noteArraySD.set(\gate, -1.001); noteArraySD = nil});
+		if(vr[27] > 63,
+			{       //HPF
+				helpMeh[12] = 19000;
+				helpMeh[13] = 1;
+				helpMeh[14] = vr[27].linexp(64,127,20,19000);
+				helpMeh[15] = vr[28].linlin(0,127,1,0.001);
+				if(vr[29]> 63,
+					{helpMeh[17] = vr[29].linexp(64,127,1,19300 - helpMeh[14])},
+					{helpMeh[17] = -1 * vr[29].linexp(0,63,helpMeh[14] - 20, 1)}
+				);
+				helpMeh[16] = 0;
+			},
+			{       //LPF
+				helpMeh[12] = vr[27].linexp(0,63,20,19000);
+				helpMeh[13] = vr[28].linlin(0,127,1, 0.001);
+				helpMeh[14] = 20;
+				helpMeh[15] = 1;
+				if(vr[29]> 63,
+					{helpMeh[16] = vr[29].linexp(64,127, 1,19300 - helpMeh[12])},
+					{helpMeh[16] = -1 * vr[29].linexp(0,63,helpMeh[12] - 20, 1)}
+				);
+				helpMeh[17] = 0;
+			}
+		);
+		noteArraySD = Synth(\MasiboLite,
+			[
+				\bufnum, ~drumPRC[vr[25]],
+				\amp, vel.linlin(0,127,-12,12),
+				\totVol, vr[51].linlin(0,127,-24,24),
+				\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+				\ratio, (vr[26]-63).midiratio,
+				\lpFrq, helpMeh[12],
+				\lpRq, helpMeh[13],
+				\hpFrq, helpMeh[14],
+				\hpRq, helpMeh[15],
+				\boolLPF,helpMeh[16],
+				\boolHPF,helpMeh[17],
+				\decFlt, vr[30].linexp(0,127,0.001, 100),
+				\gate, 1,
+				\testOut, ~abcSD
+		]).onFree{noteArraySD = nil};
+		~test_MasiboSD = 1;
+	}
+	//CLP
+	{ note == 53 }   {
+		if(noteArrayCLP !== nil, {noteArrayCLP.set(\gate, -1.001); noteArrayCLP = nil});
+		if(vr[33] > 63,
+			{       //HPF
+				helpMeh[18] = 19000;
+				helpMeh[19] = 1;
+				helpMeh[20] = vr[33].linexp(64,127,20,19000);
+				helpMeh[21] = vr[34].linlin(0,127,1,0.001);
+				if(vr[35]> 63,
+					{helpMeh[23] = vr[35].linexp(64,127,1,19300 - helpMeh[20])},
+					{helpMeh[23] = -1 * vr[35].linexp(0,63,helpMeh[20] - 20, 1)}
+				);
+				helpMeh[22] = 0;
+			},
+			{       //LPF
+				helpMeh[18] = vr[33].linexp(0,63,20,19000);
+				helpMeh[19] = vr[34].linlin(0,127,1, 0.001);
+				helpMeh[20] = 20;
+				helpMeh[21] = 1;
+				if(vr[35]> 63,
+					{helpMeh[22] = vr[35].linexp(64,127, 1,19300 - helpMeh[18])},
+					{helpMeh[22] = -1 * vr[35].linexp(0,63,helpMeh[18] - 20, 1)}
+				);
+				helpMeh[23] = 0;
+			}
+		);
+		noteArrayCLP = Synth(\MasiboLite,
+			[
+				\bufnum, ~drumCLP[vr[31]],
+				\amp, vel.linlin(0,127,-12,12),
+				\totVol, vr[52].linlin(0,127,-24,24),
+				\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+				\ratio, (vr[32]-63).midiratio,
+				\lpFrq, helpMeh[18],
+				\lpRq, helpMeh[19],
+				\hpFrq, helpMeh[20],
+				\hpRq, helpMeh[21],
+				\boolLPF,helpMeh[22],
+				\boolHPF,helpMeh[23],
+				\decFlt, vr[36].linexp(0,127,0.001, 100),
+				\gate, 1,
+				\testOut, ~abcCLP
+		]).onFree{noteArrayCLP = nil};
+		~test_MasiboCLP = 1;
+	}
+	//TOM
+	{ note == 54 }   {
+		if(noteArrayTOM !== nil, {noteArrayTOM.set(\gate, -1.001); noteArrayTOM = nil});
+		if(vr[39] > 63,
+			{       //HPF
+				helpMeh[24] = 19000;
+				helpMeh[25] = 1;
+				helpMeh[26] = vr[39].linexp(64,127,20,19000);
+				helpMeh[27] = vr[40].linlin(0,127,1,0.001);
+				if(vr[41]> 63,
+					{helpMeh[29] = vr[41].linexp(64,127,1,19300 - helpMeh[26])},
+					{helpMeh[29] = -1 * vr[41].linexp(0,63,helpMeh[26] - 20, 1)}
+				);
+				helpMeh[28] = 0;
+			},
+			{       //LPF
+				helpMeh[24] = vr[39].linexp(0,63,20,19000);
+				helpMeh[25] = vr[40].linlin(0,127,1, 0.001);
+				helpMeh[26] = 20;
+				helpMeh[27] = 1;
+				if(vr[41]> 63,
+					{helpMeh[28] = vr[41].linexp(64,127, 1,19300 - helpMeh[24])},
+					{helpMeh[28] = -1 * vr[41].linexp(0,63,helpMeh[24] - 20, 1)}
+				);
+				helpMeh[29] = 0;
+			}
+		);
+		noteArrayTOM = Synth(\MasiboLite,
+			[
+				\bufnum, ~drumTOM[vr[37]],
+				\amp, vel.linlin(0,127,-12,12),
+				\totVol, vr[53].linlin(0,127,-24,24),
+				\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+				\ratio, (vr[38]-63).midiratio,
+				\lpFrq, helpMeh[24],
+				\lpRq, helpMeh[25],
+				\hpFrq, helpMeh[26],
+				\hpRq, helpMeh[27],
+				\boolLPF,helpMeh[28],
+				\boolHPF,helpMeh[29],
+				\decFlt, vr[42].linexp(0,127,0.001, 100),
+				\gate, 1,
+				\testOut, ~abcTOM
+		]).onFree{noteArrayTOM = nil};
+		~test_MasiboTOM = 1;
+	}
+	//EFX
+	{ note == 55 }   {
+		if(noteArrayEFX !== nil, {noteArrayEFX.set(\gate, -1.001); noteArrayEFX = nil});
+		if(vr[45] > 63,
+			{       //HPF
+				helpMeh[30] = 19000;
+				helpMeh[31] = 1;
+				helpMeh[32] = vr[45].linexp(64,127,20,19000);
+				helpMeh[33] = vr[46].linlin(0,127,1,0.001);
+				if(vr[47]> 63,
+					{helpMeh[35] = vr[47].linexp(64,127,1,19300 - helpMeh[32])},
+					{helpMeh[35] = -1 * vr[47].linexp(0,63,helpMeh[32] - 20, 1)}
+				);
+				helpMeh[34] = 0;
+			},
+			{       //LPF
+				helpMeh[30] = vr[45].linexp(0,63,20,19000);
+				helpMeh[31] = vr[46].linlin(0,127,1, 0.001);
+				helpMeh[32] = 20;
+				helpMeh[33] = 1;
+				if(vr[47]> 63,
+					{helpMeh[34] = vr[47].linexp(64,127, 1,19300 - helpMeh[30])},
+					{helpMeh[34] = -1 * vr[47].linexp(0,63,helpMeh[30] - 20, 1)}
+				);
+				helpMeh[35] = 0;
+			}
+		);
+		noteArrayEFX = Synth(\MasiboLite,
+			[
+				\bufnum, ~drumEFX[vr[43]],
+				\amp, vel.linlin(0,127,-12,12),
+				\totVol, vr[54].linlin(0,127,-24,24),
+				\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+				\ratio, (vr[44]-63).midiratio,
+				\lpFrq, helpMeh[30],
+				\lpRq, helpMeh[31],
+				\hpFrq, helpMeh[32],
+				\hpRq, helpMeh[33],
+				\boolLPF,helpMeh[34],
+				\boolHPF,helpMeh[35],
+				\decFlt, vr[48].linexp(0,127,0.001, 100),
+				\gate, 1,
+				\testOut, ~abcEFX
+		]).onFree{noteArrayEFX = nil};
+		~test_MasiboEFX = 1;
+	}
 },srcID:~midiInINST3,chan: 11).permanent_(true);
 /*MIDIdef.noteOff(\noteoffmykeymasibo, {arg vel, note;
 case
@@ -146,77 +429,17 @@ case
 */
 MIDIdef.cc(\masiboCC, {arg ...args;
 	if(betassCYM == 0,  {betassCYM = 1;headnoCYM = Synth(\MasiboCYMefkt).onFree{betassCYM = 0}});
-	index1 = args[1];
-	index2 = args[0];
-	x = case
-	{ index1 == 0 }    { var0=index2;}
-	{ index1 == 1 }    { var1=index2;}
-	{ index1 == 2 }    { var2=index2;}
-	{ index1 == 3 }    { var3=index2;}
-	{ index1 == 4 }    { var4=index2;}
-	{ index1 == 5 }    { var5=index2;}
-	{ index1 == 6 }    { var6=index2;}
-	{ index1 == 7 }    { var7=index2;}
-	{ index1 == 8 }    { var8=index2;}
-	{ index1 == 9 }    { var9=index2;}
-	{ index1 == 10}    { var10=index2;}
-	{ index1 == 11}    { var11=index2;}
-	{ index1 == 12}    { var12=index2;}
-	{ index1 == 13}    { var13=index2;}
-	{ index1 == 14}    { var14=index2;}
-	{ index1 == 15}    { var15=index2;}
-	{ index1 == 16}    { var16=index2;}
-	{ index1 == 17}    { var17=index2;}
-	{ index1 == 18}    { var18=index2;}
-	{ index1 == 19}    { var19=index2;}
-	{ index1 == 20}    { var20=index2;}
-	{ index1 == 21}    { var21=index2;}
-	{ index1 == 22}    { var22=index2;}
-	{ index1 == 23}    { var23=index2;}
-	{ index1 == 24}    { var24=index2;}
-	{ index1 == 25}    { var25=index2;}
-	{ index1 == 26}    { var26=index2;}
-	{ index1 == 27}    { var27=index2;}
-	{ index1 == 28}    { var28=index2;}
-	{ index1 == 29}    { var29=index2;}
-	{ index1 == 30}    { var30=index2;}
-	{ index1 == 31}    { var31=index2;}
-	{ index1 == 32}    { var32=index2;}
-	{ index1 == 33}    { var33=index2;}
-	{ index1 == 34}    { var34=index2;}
-	{ index1 == 35}    { var35=index2;}
-	{ index1 == 36}    { var36=index2;}
-	{ index1 == 37}    { var37=index2;}
-	{ index1 == 38}    { var38=index2;}
-	{ index1 == 39}    { var39=index2;}
-	{ index1 == 40}    { var40=index2;}
-	{ index1 == 41}    { var41=index2;}
-	{ index1 == 42}    { var42=index2;}
-	{ index1 == 43}    { var43=index2;}
-	{ index1 == 44}    { var44=index2;}
-	{ index1 == 45}    { var45=index2;}
-	{ index1 == 46}    { var46=index2;}
-	{ index1 == 47}    { var47=index2;}
-	{ index1 == 48}    { var48=index2;}
-	{ index1 == 49}    { var49=index2;}
-	{ index1 == 50}    { var50=index2;}
-	{ index1 == 51}    { var51=index2;}
-	{ index1 == 52}    { var52=index2;}
-	{ index1 == 53}    { var53=index2;}
-	{ index1 == 54}    { var54=index2;}
-	{ index1 == 55}    { var55=index2;}
-	{ index1 == 56}    { var56=index2;}
-	{ index1 == 57}    { var57=index2;};
-	if (var10 > 63,
-		{ headnoCYM.set(\freqHP, var10.linexp(64,127, 20, 20000), \freqLP, 20000) },
-		{ headnoCYM.set(\freqLP, var10.linexp(0,63, 20, 20000), \freqHP, 20) });
+	vr[args[1]] = args[0];
+	if (vr[10] > 63,
+		{ headnoCYM.set(\freqHP, vr[10].linexp(64,127, 20, 20000), \freqLP, 20000) },
+		{ headnoCYM.set(\freqLP, vr[10].linexp(0,63, 20, 20000), \freqHP, 20) });
 	headnoCYM.set(
-		\samplerate, var11.linexp(0,127, 450, 44100),
-		\samplersmooth, var11.linexp(0,127, 1, 0.0001),
-		\totVol, var9.linlin(0,127,-24,24),
-		\tottotVOLVOL, var7.linlin(0,127,-24,24),
-		\limitdest, var12.linexp(0,127, 0.33, 0.01),
-		\limitamp, var12.linexp(0,127,4,110));
+		\samplerate, vr[11].linexp(0,127, 450, 44100),
+		\samplersmooth, vr[11].linexp(0,127, 1, 0.0001),
+		\totVol, vr[9].linlin(0,127,-24,24),
+		\tottotVOLVOL, vr[7].linlin(0,127,-24,24),
+		\limitdest, vr[12].linexp(0,127, 0.33, 0.01),
+		\limitamp, vr[12].linexp(0,127,4,110));
 
 },(0..90),srcID:~midiInINST3,chan:11).permanent_(true);
 SynthDef(\MasiboBDDiskout, {arg bufnum;
@@ -224,24 +447,24 @@ SynthDef(\MasiboBDDiskout, {arg bufnum;
 }).add;
 SynthDef(\MasiboCYMDiskout, {arg bufnum;
 	DiskOut.ar(bufnum, In.ar(~abcCYM,1));
-}).add;/*
+}).add;
 SynthDef(\MasiboHHDiskout, {arg bufnum;
-DiskOut.ar(bufnum, In.ar(~abcHH,1));
+	DiskOut.ar(bufnum, In.ar(~abcHH,1));
 }).add;
 SynthDef(\MasiboPRCDiskout, {arg bufnum;
-DiskOut.ar(bufnum, In.ar(~abcPRC,1));
+	DiskOut.ar(bufnum, In.ar(~abcPRC,1));
 }).add;
 SynthDef(\MasiboSDDiskout, {arg bufnum;
-DiskOut.ar(bufnum, In.ar(~abcSD,1));
+	DiskOut.ar(bufnum, In.ar(~abcSD,1));
 }).add;
 SynthDef(\MasiboCLPDiskout, {arg bufnum;
-DiskOut.ar(bufnum, In.ar(~abcCLP,1));
+	DiskOut.ar(bufnum, In.ar(~abcCLP,1));
 }).add;
 SynthDef(\MasiboTOMDiskout, {arg bufnum;
-DiskOut.ar(bufnum, In.ar(~abcTOM,1));
+	DiskOut.ar(bufnum, In.ar(~abcTOM,1));
 }).add;
 SynthDef(\MasiboEFXDiskout, {arg bufnum;
-DiskOut.ar(bufnum, In.ar(~abcEFX,1));
-}).add;*/
+	DiskOut.ar(bufnum, In.ar(~abcEFX,1));
+}).add;
 )
 

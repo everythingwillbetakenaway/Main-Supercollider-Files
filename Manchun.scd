@@ -2,11 +2,10 @@
 //key-follow++++envelope _EKLE
 var noteArray = Array.newClear(128),
 nova = ParGroup.new,
-abc = Bus.audio(s,1),
 vr = Array.fill(128, 63),
 defme;
-
-SynthDef(\Manchun,{ arg out = 0,  bufnum = ~blls[62],  freq = 261.6, amp = 1, gate = 1,
+// filter follow gelsin key!!!// filter follow gelsin key!!!// filter follow gelsin key!!!// filter follow gelsin key!!!
+SynthDef(\Manchun,{ arg out = 0,  bufnum = ~blls[62],  freq = 60, amp = 1, gate = 1,
 	//Volume Envelope Parameters
 	coarse, fine,   atkVol, decVol, susVol, relVol,
 	//Pitch  Envelope Parameters
@@ -16,6 +15,7 @@ SynthDef(\Manchun,{ arg out = 0,  bufnum = ~blls[62],  freq = 261.6, amp = 1, ga
 	//Highpass Filter Frequency Parameters
 	frqHPF, hpfMod,	atkHPF, decHPF, susHPF, relHPF,
 	//Sample Playback Parameters
+	folLPF, folHPF,
 	loopMe, smplSt, smplEd, trkVol;
 
 	//--------------------------Signal Processing Side--------------------------\\
@@ -29,7 +29,7 @@ SynthDef(\Manchun,{ arg out = 0,  bufnum = ~blls[62],  freq = 261.6, amp = 1, ga
 		bufnum: bufnum,
 		phase: Phasor.ar(
 			trig: 1,
-			rate: (BufRateScale.kr(bufnum) * coarse * fine * freq/261 * LinExp.kr(genPit,0,1,pModLo,pModHi)),
+			rate: (BufRateScale.kr(bufnum) * coarse * fine * (freq.midicps)/261 * LinExp.kr(genPit,0,1,pModLo,pModHi)),
 			start: start1,
 			end: end1,
 			resetPos:0),
@@ -42,18 +42,17 @@ SynthDef(\Manchun,{ arg out = 0,  bufnum = ~blls[62],  freq = 261.6, amp = 1, ga
 	//LowPass Filter Envelope Signal
 	var envLPF = Env.adsr(atkLPF, decLPF, (susLPF.dbamp), relLPF, curve: [5,-7,-4]);
 	var genLPF = EnvGen.ar(envLPF, gate, doneAction: 0);
-	var loPass = BLowPass.ar(sndsnd,Lag2.ar(LinExp.ar(genLPF,0,1,frqLPF,lpfMod),0.002));
+	var loPass = BLowPass.ar(sndsnd, Clip.ar(
+		(freq * folLPF).midicps + Lag2.ar(LinExp.ar(genLPF,0,1,frqLPF,lpfMod),0.002),40,20000));
 
 	//HiPass Filter Envelope Signal
 	var envHPF = Env.adsr(atkHPF, decHPF, (susHPF.dbamp), relHPF, curve: [5,-7,-4]);
 	var genHPF = EnvGen.ar(envHPF, gate, doneAction: 0);
-	var hiPass = BHiPass.ar(loPass, Lag2.ar(LinExp.ar(genHPF,0,1,frqHPF,hpfMod),0.002),mul: 0.7);
-
-
+		var hiPass = BHiPass.ar(loPass, Clip.ar(
+		(freq * folHPF).midicps + Lag2.ar(LinExp.ar(genHPF,0,1,frqHPF,hpfMod),0.002),40,20000),mul: 0.7);
 	//Output
 	var lstout = hiPass * genVol * ((amp + trkVol - 30).dbamp);
-	Out.ar(abc, lstout);
-	Out.ar(0,[lstout,lstout]);
+	Out.ar(10,Mix.ar(lstout));
 
 }).add;
 defme = { arg a1,b1,c1; var a4 =
@@ -69,8 +68,10 @@ defme = { arg a1,b1,c1; var a4 =
 		\trkVol, vr[7].linlin(0,127,-24,24),
 		\smplSt, vr[8],
 		\smplEd, vr[9],
+		\folLPF, vr[10].linlin(0,127,-1,1),
+		\folHPF, vr[11].linlin(0,127,-1,1),
 		//cc 10 effect gelebilir
-		//cc 11 rq?
+		//cc 11 rq? // filter follow gelsin key!!!
 
 		\pModLo,(vr[12]-63).midiratio,
 		\pModHi,(vr[13]-63).midiratio,
@@ -94,7 +95,7 @@ defme = { arg a1,b1,c1; var a4 =
 		\relHPF, vr[29].lincurve(0,127,0.0005,20,8),
 
 		\loopMe, 1];
-	if(a1 == 1) { [\freq, b1.midicps, \amp, c1.linlin(0,127, 0, 24), \bufnum, ~blls[vr[6]]] ++ a4} {a4}};
+	if(a1 == 1) { [\freq, b1, \amp, c1.linlin(0,127, 0, 24), \bufnum, ~blls[vr[6]]] ++ a4} {a4}};
 MIDIdef.noteOn(\ManchunController, {arg vel, note;
 	if(noteArray[note] !== nil,noteArray[note].free);
 	noteArray[note] = Synth(\Manchun, defme.value(1, note, vel),nova);
@@ -108,11 +109,4 @@ MIDIdef.noteOff(\ManchunOffMykey, {arg vel, note;
 	noteArray[note].set(\gate,0);
 	noteArray[note] = nil;
 },srcID:~midiInINST4,chan:14).permanent_(true);
-SynthDef(\ManchunDiskout, {arg bufnum;
-	DiskOut.ar(bufnum, In.ar(abc,1));
-}).add;
 )
-
-
-
-

@@ -1,15 +1,17 @@
 (
 var
+nova = ParGroup.new,
 var0=63,var1=63,var2=63,var3  =63,var4 =63, var5=63, var6=63,
 var7=63,var8=63,var9=63,var10=63,var11=63,var12=63,var13=63,
 var14=63,var15=63,var16=63,var17=63,var18=63,var19=63,var20=63,
 var21=63,var22=63,var23=63,var24=63,var25=63,var26=63,var27=63,
 var28=63,var29=63,var30=63,var31=63,var32=63,var33=63,var34=63,
 var35=63,var36=63,var37=63,var38=63,var39=63,var40=63,var41=63,
+vr = Array.fill(128, 63),
+defme,
 noteArraySenjin,
-headno,charr,
+headno,
 betass = 0,
-abc = Bus.audio(s,1),
 index1,index2;
 SynthDef(\Senjin,{
 	|out= 0 freq = 63 amp = 63 gate=1 totVol = 63
@@ -77,8 +79,7 @@ SynthDef(\Senjin,{
 	chorus = Compander.ar(4*(filter + chorus),filter,0.4,1,4,mul: 0.5);
 	chorus= chorus * Lag2.kr(((totVol.linlin(0,127,-24,24) -15 + amp.linlin(0,127,-12,12)).dbamp),0.05);
 	chorus = Mix.new(chorus);
-	Out.ar(abc, chorus);
-	Out.ar([0,1], chorus);
+	Out.ar(6, chorus);
 
 
 }).add;
@@ -100,95 +101,50 @@ DetectSilence.ar(chorus, doneAction:2);
 Out.ar([0,1], chorus);
 }).add;
 */
+defme = { arg a1,b1,c1; var a =
+	[
+		\osc1vibRate,   vr[0],
+		\osc1vibDept,  vr[1],
+		\osc1widFrq,  vr[2],
+		\osc1widMul, vr[3],
+		\osc1widAadd,  vr[4],
+		\oscMix,    vr[5],
+		//
+		\osc2vibRate,   vr[6],
+		\osc2vibDept,   vr[8],
+		\osc2widFrq,  vr[9],
+		\osc2widMul,  vr[11],
+		\osc2widAadd,  vr[12],
+		\osc2pitch,  vr[13],
+		//
+		\frqLag, vr[14],
+		\sub, vr[15],
+		\k1, vr[16],
+		\d1length1, vr[17],
+		\d2length1, vr[18],
+		\mixTube1, vr[19],
+		//
+		\volAtk, vr[20],
+		\volDec, vr[21],
+		\volSus, vr[22],
+		\volRel, vr[23],
+		\fltFrq, vr[24],
+		\fltRes, vr[25],
+		//
+		\fltAtk, vr[26],
+		\fltDec, vr[27],
+		\fltSus, vr[28],
+		\fltRel, vr[29],
+		\fltAmt, vr[30],
+		\fltOvr, vr[31],
+		//
+		\totVol,  vr[7]];
+	if(a1 == 1) { [\freq, b1, \amp, c1.linlin(0,127,-12,12), \gate, 1] ++ a} {a}};
 MIDIdef.noteOn(\SenjinController, {arg vel, note;
-	charr = true;
 	//	if(noteArray !== nil,noteArray.free);
-	if(betass == 0 , {betass = 1; noteArraySenjin = Synth(\Senjin,[
-		\freq, note,
-		\amp, vel,
-		\gate, 1,
-		//
-		\osc1vibRate,   var0,
-		\osc1vibDept,  var1,
-		\osc1widFrq,  var2,
-		\osc1widMul, var3,
-		\osc1widAadd,  var4,
-		\oscMix,    var5,
-		//
-		\osc2vibRate,   var6,
-		\osc2vibDept,   var8,
-		\osc2widFrq,  var9,
-		\osc2widMul,  var11,
-		\osc2widAadd,  var12,
-		\osc2pitch,  var13,
-		//
-		\frqLag, var14,
-		\sub, var15,
-		\k1, var16,
-		\d1length1, var17,
-		\d2length1, var18,
-		\mixTube1, var19,
-		//
-		\volAtk, var20,
-		\volDec, var21,
-		\volSus, var22,
-		\volRel, var23,
-		\fltFrq, var24,
-		\fltRes, var25,
-		//
-		\fltAtk, var26,
-		\fltDec, var27,
-		\fltSus, var28,
-		\fltRel, var29,
-		\fltAmt, var30,
-		\fltOvr, var31,
-		//		\bliptreegelcek, var19,
-		\totVol,  var7]).onFree{betass = 0}}
-		,
-		{
-			noteArraySenjin.set(
-				\freq, note,
-				\amp, vel,
-				\gate, 1,
-				//
-				\osc1vibRate,   var0,
-				\osc1vibDept,  var1,
-				\osc1widFrq,  var2,
-				\osc1widMul, var3,
-				\osc1widAadd,  var4,
-				\oscMix,    var5,
-				//
-				\osc2vibRate,   var6,
-				\osc2vibDept,   var8,
-				\osc2widFrq,  var9,
-				\osc2widMul,  var11,
-				\osc2widAadd,  var12,
-				\osc2pitch,  var13,
-				//
-				\frqLag, var14,
-				\sub, var15,
-				\k1, var16,
-				\d1length1, var17,
-				\d2length1, var18,
-				\mixTube1, var19,
-				//
-				\volAtk, var20,
-				\volDec, var21,
-				\volSus, var22,
-				\volRel, var23,
-				\fltFrq, var24,
-				\fltRes, var25,
-				//
-				\fltAtk, var26,
-				\fltDec, var27,
-				\fltSus, var28,
-				\fltRel, var29,
-				\fltAmt, var30,
-				\fltOvr, var31,
-				//		\bliptreegelcek, var19,
-				\totVol,  var7);
-	});
-	~test_Senjin = 1;
+	if(betass == 0 ,
+		{betass = 1; noteArraySenjin = Synth(\Senjin,defme.value(1, note, vel),nova).onFree{betass = 0}},
+		{nova.setControls(defme.value(1,note,vel));});
 },srcID:~midiInINST1,chan: 13).permanent_(true);
 MIDIdef.noteOff(\noteoffmykeySenjin, {arg vel, note;
 	noteArraySenjin.get(\freq, {arg value;
@@ -199,88 +155,9 @@ MIDIdef.noteOff(\noteoffmykeySenjin, {arg vel, note;
 	})});
 },srcID:~midiInINST1,chan:13).permanent_(true);
 MIDIdef.cc(\SenjinCC, {arg ...args;
-	index1 = args[1];
-	index2 = args[0];
-	x = case
-	{ index1 == 0 }   {  var0=index2;}
-	{ index1 == 1 }   {  var1=index2;}
-	{ index1 == 2 }   {  var2=index2;}
-	{ index1 == 3 }   {  var3=index2;}
-	{ index1 == 4 }   {  var4=index2;}
-	{ index1 == 5 }   {  var5=index2;}
-	{ index1 == 6 }   {  var6=index2;}
-	{ index1 == 7 }   {  var7=index2;}
-	{ index1 == 8 }   {  var8=index2;}
-	{ index1 == 9 }   {  var9=index2;}
-	{ index1 == 10}   { var10=index2;}
-	{ index1 == 11}   { var11=index2;}
-	{ index1 == 12}   { var12=index2;}
-	{ index1 == 13}   { var13=index2;}
-	{ index1 == 14}   { var14=index2;}
-	{ index1 == 15}   { var15=index2;}
-	{ index1 == 16}   { var16=index2;}
-	{ index1 == 17}   { var17=index2;}
-	{ index1 == 18}   { var18=index2;}
-	{ index1 == 19}   { var19=index2;}
-	{ index1 == 20}   { var20=index2;}
-	{ index1 == 21}   { var21=index2;}
-	{ index1 == 22}   { var22=index2;}
-	{ index1 == 23}   { var23=index2;}
-	{ index1 == 24}   { var24=index2;}
-	{ index1 == 25}   { var25=index2;}
-	{ index1 == 26}   { var26=index2;}
-	{ index1 == 27}   { var27=index2;}
-	{ index1 == 28}   { var28=index2;}
-	{ index1 == 29}   { var29=index2;}
-	{ index1 == 30}   { var30=index2;}
-	{ index1 == 31}   { var31=index2;}
-	{ index1 == 32}   { var32=index2;}
-	{ index1 == 33}   { var33=index2;}
-	{ index1 == 34}   { var34=index2;}
-	{ index1 == 35}   { var35=index2;}
-	{ index1 == 36}   { var36=index2;};
-	if(betass == 1 , {noteArraySenjin.set(
-		\osc1vibRate,   var0,
-		\osc1vibDept,  var1,
-		\osc1widFrq,  var2,
-		\osc1widMul, var3,
-		\osc1widAadd,  var4,
-		\oscMix,    var5,
-		//
-		\osc2vibRate,   var6,
-		\osc2vibDept,   var8,
-		\osc2widFrq,  var9,
-		\osc2widMul,  var11,
-		\osc2widAadd,  var12,
-		\osc2pitch,  var13,
-		//
-		\frqLag, var14,
-		\sub, var15,
-		\k1, var16,
-		\d1length1, var17,
-		\d2length1, var18,
-		\mixTube1, var19,
-		//
-		\volAtk, var20,
-		\volDec, var21,
-		\volSus, var22,
-		\volRel, var23,
-		\fltFrq, var24,
-		\fltRes, var25,
-		//
-		\fltAtk, var26,
-		\fltDec, var27,
-		\fltSus, var28,
-		\fltRel, var29,
-		\fltAmt, var30,
-		\fltOvr, var31,
-		//		\bliptreegelcek, var19,
-		\totVol,  var7)})
-	;//tim duncan
+	vr[args[1]] = args[0];
+	if(betass == 1 , {nova.setControls(defme.value(0))});//tim duncan
 },(0..39),srcID:~midiInINST1,chan:13).permanent_(true);
-SynthDef(\SenjinDiskout, {arg bufnum;
-	DiskOut.ar(bufnum, In.ar(abc,1));
-}).add;
 )
 /*
 s.queryAllNodes; // note the default group (ID 1)
