@@ -4,7 +4,7 @@ nova3030303 = ParGroup.new,
 vr = Array.fill(128, 63),
 defme,
 noteArray3030303 = Array.newClear(128);
-SynthDef(\3030303, {
+SynthDef(\sd3030303, {
 	arg outBus=0, gate=1, pitch=50, amp=0.1, totVol,
 	fltCtf,fltDec,fltDst,fltPitchMod,fltAmt,fltRz,fltRza,
 	volAtk,volDec,volSus,volRel,volAmt;
@@ -39,17 +39,18 @@ defme = { arg a1,b1,c1; var a =
 		\volSus,  vr[9].linexp(0,127,0.01,1),
 		\volRel,  vr[10].linexp(0,127,0.01,10),
 		\totVol, vr[7].linlin(0,127,-24,24)];
-	if(a1 == 1) { [\pitch, b1, \amp, c1.linlin(0,127,-12,12)] ++ a} {a}};
-MIDIdef.noteOn(\3030303Controller, {arg vel, note;
+	if(a1 == 1, { [\pitch, b1, \amp, c1.linlin(0,127,-12,12)] ++ a} ,{a});
+};
+MIDIdef.noteOn(\controller3030303, {arg vel, note;
 	if(noteArray3030303[note] !== nil,noteArray3030303[note].free);
-	noteArray3030303[note] = Synth(\3030303,defme.value(1, note, vel),nova3030303);
+	noteArray3030303[note] = Synth(\sd3030303,defme.value(1, note, vel),nova3030303);
 	~test_3030303 = 1;
 },srcID:~midiInINST2,chan: 8).permanent_(true);
-MIDIdef.noteOff(\noteoffmykey3030303, {arg vel, note;
+MIDIdef.noteOff(/noteoffmykey3030303, {arg vel, note;
 	noteArray3030303[note].set(\gate,0);
 	noteArray3030303[note] = nil;
 },srcID:~midiInINST2,chan:8).permanent_(true);
-MIDIdef.cc(\3030303CC, {arg ...args;
+MIDIdef.cc(\cc3030303, {arg ...args;
 	vr[args[1]] = args[0];
 	nova3030303.setControls(defme.value(0));
 },(0..10),srcID:~midiInINST2,chan:8).permanent_(true);
