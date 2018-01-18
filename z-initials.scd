@@ -1,7 +1,10 @@
 (
-Server.supernova;
-//s.options.device ="Forte";     // use a specific soundcard
-s.options.numOutputBusChannels =4;
+Server.scsynth;
+s.options.device ="Babyface Pro (70795866)";     // use a specific soundcard
+s.options.numOutputBusChannels =12;
+s.options.numInputBusChannels =4;
+
+MIDIIn.connectAll;
 
 ~midiInINST1= MIDIIn.findPort("Cirklon", "Port 1").asMIDIInPortUID;
 ~midiInINST2= MIDIIn.findPort("Cirklon", "Port 2").asMIDIInPortUID;
@@ -9,6 +12,7 @@ s.options.numOutputBusChannels =4;
 ~midiInINST4= MIDIIn.findPort("Cirklon", "Port 4").asMIDIInPortUID;
 ~midiInINST5= MIDIIn.findPort("Cirklon", "Port 5").asMIDIInPortUID;
 ~midiInINST6= MIDIIn.findPort("Cirklon", "Port 6").asMIDIInPortUID;
+
 ~test_DPG1 = 1;
 ~test_DPG2 = 1;
 
@@ -20,37 +24,22 @@ s.options.sampleRate = 44100;
 s.options.blockSize = 32;//orjj
 s.options.numBuffers = 2048;
 s.latency = 0.02;
-//s.options.verbosity = -2;
-
-MIDIIn.connectAll;
+//s.recSampleFormat = float
+s.options.verbosity = -2; //IMPORTANT ALWAYS OPEN
 s.boot;
 s.waitForBoot({
 	"z-SampleReader.scd".loadRelative;
+	"DX7.scd".loadRelative;
 
-	"acid.scd".loadRelative;
+	"3030303.scd".loadRelative;
 	"Appajax-2000.scd".loadRelative;
-	"DPG2.scd".loadRelative;
-	"DrumSmpl.scd".loadRelative;
-	"Etna.scd".loadRelative;
 	//"Inferno.scd".loadRelative;
 	"Lumbricost.scd".loadRelative;
 	"Manchun.scd".loadRelative;
-	"Masibo.scd".loadRelative;
+	//"Masibo.scd".loadRelative;
 	"Massaka.scd".loadRelative;
 	"p5pwm.scd".loadRelative;
 	"senjin.scd".loadRelative;
-	"SOShats.scd".loadRelative;
-	"SOStom.scd".loadRelative;
-	"SOSkick.scd".loadRelative;
-	"SOSsnare.scd".loadRelative;
-	"SumanGuru.scd".loadRelative;
-	"THE WITCH PLANE.scd".loadRelative;
-
-	Routine {5.5.wait;"z-Metronome.scd".loadRelative(action: {"a".speak;})}.play;
-	//Routine {2.5.wait;"SampleReader.scd".loadRelative}.play;
-	//Routine {2.6.wait;"Masibo.scd".loadRelative}.play;
-	v = s.volume;
-	v.volume = -3;
 
 });
 

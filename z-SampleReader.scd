@@ -1,5 +1,7 @@
 (
 var folder;
+//Supernova Node ID
+~novaAcid = ParGroup.new;
 //MASIBO
 ~abcBD = Bus.audio(s,1);
 ~abcCYM = Bus.audio(s,1);
@@ -41,6 +43,42 @@ folder.entries.do({
 	arg path;
 	~drumCYM = ~drumCYM.add(Buffer.read(s, path.fullPath));
 });
+folder = PathName.new(("z-SampleStorage/DRUMBACK/3HH/".resolveRelative).asAbsolutePath);
+folder.entries.do({
+	arg path;
+	~drumHH = ~drumHH.add(Buffer.read(s, path.fullPath));
+});
+folder = PathName.new(("z-SampleStorage/DRUMBACK/4PRC/".resolveRelative).asAbsolutePath);
+folder.entries.do({
+	arg path;
+	~drumPRC = ~drumPRC.add(Buffer.read(s, path.fullPath));
+});
+folder = PathName.new(("z-SampleStorage/DRUMBACK/5SD/".resolveRelative).asAbsolutePath);
+folder.entries.do({
+	arg path;
+	~drumSD = ~drumSD.add(Buffer.read(s, path.fullPath));
+});
+folder = PathName.new(("z-SampleStorage/DRUMBACK/6CLP/".resolveRelative).asAbsolutePath);
+folder.entries.do({
+	arg path;
+	~drumCLP = ~drumCLP.add(Buffer.read(s, path.fullPath));
+});
+folder = PathName.new(("z-SampleStorage/DRUMBACK/7TOM/".resolveRelative).asAbsolutePath);
+folder.entries.do({
+	arg path;
+	~drumTOM = ~drumTOM.add(Buffer.read(s, path.fullPath));
+});
+folder = PathName.new(("z-SampleStorage/DRUMBACK/8EFX/".resolveRelative).asAbsolutePath);
+folder.entries.do({
+	arg path;
+	~drumEFX = ~drumEFX.add(Buffer.read(s, path.fullPath));
+});
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 //CH1
 folder = PathName.new(("z-SampleStorage/SamplesfFinalConcertNy/".resolveRelative).asAbsolutePath);
 folder.entries.do({
@@ -54,6 +92,7 @@ folder.entries.do({
 	~makeNoise = ~makeNoise.add(Buffer.read(s, path.fullPath));
 });
 //ETNA
+/*
 Routine { 3.wait;
 	folder = PathName.new(("z-SampleStorage/SA909_Samples/SA909_BD/".resolveRelative).asAbsolutePath);
 	folder.entries.do({
@@ -85,7 +124,7 @@ Routine { 3.wait;
 		arg path;
 		~drum6 = ~drum6.add(Buffer.read(s, path.fullPath));
 	});
-}.play;
+}.play;*/
 )
 
 

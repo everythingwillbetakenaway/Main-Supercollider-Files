@@ -46,7 +46,7 @@ MIDIdef.noteOn(\controller3030303, {arg vel, note;
 	noteArray3030303[note] = Synth(\sd3030303,defme.value(1, note, vel),nova3030303);
 	~test_3030303 = 1;
 },srcID:~midiInINST2,chan: 8).permanent_(true);
-MIDIdef.noteOff(/noteoffmykey3030303, {arg vel, note;
+MIDIdef.noteOff(\noteoffmykey3030303, {arg vel, note;
 	noteArray3030303[note].set(\gate,0);
 	noteArray3030303[note] = nil;
 },srcID:~midiInINST2,chan:8).permanent_(true);
