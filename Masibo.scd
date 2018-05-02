@@ -30,11 +30,13 @@ headnoTOM,
 headnoEFX,
 index1,index2;
 SynthDef(\Masibo, {
-	arg out,  bufnum = 0, ratio = 1, totVol = 0.1, tottotVOLVOL = 0, amp = 1, multout, gate = 1, volMeh = 1;
+	arg out,  bufnum = 0, ratio = 1, totVol = 0.1, tottotVOLVOL = 0, amp = 1, multout, gate = 1, volMeh = 1, env1;
 	var playbuf, out1, busout, env, snd;
 	playbuf = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * ratio, doneAction:0);
 	env =  EnvGen.ar(Env.asr, gate, volMeh);
 	DetectSilence.ar(playbuf,doneAction:2);
+	env1 = Line.kr(0, 1, 10);
+	FreeSelfWhenDone.kr(env1);
 	out1 = env * playbuf;
 	Out.ar(out, out1);
 }).add;
@@ -48,7 +50,7 @@ SynthDef(\MasiboLite , {
 	playbuf = BHiPass.ar(playbuf,freq:hpFrq + (envFlt * boolHPF),rq:hpRq);
 	DetectSilence.ar(playbuf,doneAction:2);
 	out1 = env * playbuf;
-	Out.ar(out, [out1,out1]);
+	Out.ar(1, out1);
 	Out.ar(testOut, out1);
 }).add;
 SynthDef(\MasiboBDefkt, {|
@@ -69,7 +71,7 @@ SynthDef(\MasiboBDefkt, {|
 	//rlpf = LeakDC.ar(rlpf);
 	rlpf = rlpf * ((totVol + amp -15 + tottotVOLVOL).dbamp);
 	rlpf = rlpf * KeyState.kr(18, 1, 0, 0.1);
-	Out.ar(out, [rlpf,rlpf]);
+	Out.ar(1, rlpf);
 	Out.ar(~abcBD, rlpf);
 }).add;
 SynthDef(\MasiboCYMefkt, {|out =0 gate= 1 freqHP= 20 freqLP= 20000 samplerate 44100  samplersmooth 1 limitdest 0.01 limitamp 5 amp 1 totVol 1 tottotVOLVOL 1 out2|
@@ -83,7 +85,7 @@ SynthDef(\MasiboCYMefkt, {|out =0 gate= 1 freqHP= 20 freqLP= 20000 samplerate 44
 	limit = limit * ((totVol + amp -15 + tottotVOLVOL).dbamp);
 	DetectSilence.ar(limit, amp: 0.002, doneAction:2);
 	limit = limit * KeyState.kr(19, 1, 0, 0.1);
-	Out.ar(out, [limit,limit]);
+	Out.ar(1, limit);
 	Out.ar(~abcCYM, limit);
 }).add;
 MIDIdef.noteOn(\MasiboController, {arg vel, note;

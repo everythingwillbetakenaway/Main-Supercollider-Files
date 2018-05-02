@@ -287,7 +287,7 @@ SynthDefs
 */
 
 
-SynthDef(\InfEfx, {
+SynthDef(\InfEfx2, {
 	arg outBus=0, pitch, gate,
 	lfoGet1 = 0, lfoGet2=1,
 	lfo_speed, lfo_wave, lfo_phase,
@@ -316,7 +316,7 @@ SynthDef(\InfEfx, {
 }).add;
 
 
-SynthDef(\DX7, {
+SynthDef(\DX8, {
 	arg outBus=0, pitch, gate = 1,
 	envPL0, envPL1, envPL2, envPL3, envPL4, envPR0, envPR1, envPR2, envPR3,
 	coars1, fine_1,	coars2, fine_2,	coars3, fine_3,	coars4, fine_4,	coars5, fine_5,	coars6, fine_6,
@@ -638,18 +638,18 @@ noteParser = { arg vel, note;
 							headno.free;
 						});
 						betass = 1;
-						headno = Synth.before(novaDX7, \InfEfx, defjamHead0.());
+						headno = Synth.before(novaDX7, \InfEfx2, defjamHead0.());
 					},
 					{
 						if(betass == 0,   {
 							betass = 1;
-							headno = Synth.before(novaDX7, \InfEfx, defjamHead0.())
+							headno = Synth.before(novaDX7, \InfEfx2, defjamHead0.())
 						},
 						{
 							headno.set(defjamHead0.())
 						});
 					});
-					noteArrayDX7[note] = Synth(\DX7 ,defme.value(note, vel),novaDX7);
+					noteArrayDX7[note] = Synth(\DX8 ,defme.value(note, vel),novaDX7);
 					//noteArrayDX7[note] = Synth(\DX7 ,defme.value(note, vel), novaDX7); //orjburayi addtotail diye degistirdin
 
 				},
@@ -690,17 +690,17 @@ mainCaller = { arg x, y, z;
 	noteParser.value(y, x)
 
 };
-MIDIdef.noteOn(\DX7, {arg vel, note;
+MIDIdef.noteOn(\DX8, {arg vel, note;
 	mainCaller.value(note, vel, (presetz[0] * 128) + presetz[1]);
-},srcID:~midiInINST4,chan:2).add;
+},srcID:~midiInINST4,chan:5).add;
 
-MIDIdef.cc(\DX7CC, {arg ...args;
+MIDIdef.cc(\DX8CC, {arg ...args;
 	presetz[args[1]] = args[0];
-},(0..1),srcID:~midiInINST4,chan:2).add;
+},(0..1),srcID:~midiInINST4,chan:5).add;
 
-MIDIdef.noteOff(\DX7off, {arg vel, note;
+MIDIdef.noteOff(\DX8off, {arg vel, note;
 	mainCaller.value(note, 0);
-},srcID:~midiInINST4,chan:2).add;
+},srcID:~midiInINST4,chan:5).add;
 )
 
 /*
