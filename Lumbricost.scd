@@ -16,7 +16,7 @@ SynthDef(\Lumbricost, {arg attTim= 1,relTim=2.5,amp = 1 ,scale= 6, offset = 40,s
 	var filterme = BMoog.ar(env, Clip.kr(fltFrq + env2 + (fltFlw * offset), 20, 20000), reso , mode);
 	var env1 = LeakDC.ar(filterme);
 	var out =  env1* ((totVol + amp -15).dbamp);
-	Out.ar(8,out);
+	Out.ar(1,out);
 }).add;
 defme = { arg a1,b1,c1; var a =
 	[

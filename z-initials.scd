@@ -12,6 +12,7 @@ MIDIIn.connectAll;
 ~midiInINST4= MIDIIn.findPort("Cirklon", "Port 4").asMIDIInPortUID;
 ~midiInINST5= MIDIIn.findPort("Cirklon", "Port 5").asMIDIInPortUID;
 ~midiInINST6= MIDIIn.findPort("Cirklon", "Port 6").asMIDIInPortUID;
+~midiInINSTmax= MIDIIn.findPort("from Max 1", "from Max 1").asMIDIInPortUID;
 
 ~test_DPG1 = 1;
 ~test_DPG2 = 1;
@@ -20,7 +21,7 @@ s.options.hardwareBufferSize = 64;//orj 256
 s.options.maxNodes = 2048;
 s.options.numWireBufs = 1024;
 s.options.memSize = 131072 * 16;
-s.options.sampleRate = 44100;
+s.options.sampleRate = 44100;//orj 44100
 s.options.blockSize = 32;//orjj 32
 s.options.numBuffers = 2048;
 s.latency = 0.02; //uncomment here
@@ -30,7 +31,6 @@ s.boot;
 s.waitForBoot({
 	"z-SampleReader.scd".loadRelative;
 	"DX7.scd".loadRelative;
-	"DX8.scd".loadRelative;
 
 
 	"3030303.scd".loadRelative;
@@ -44,6 +44,12 @@ s.waitForBoot({
 	"senjin.scd".loadRelative;
 });
 
+
+MIDIdef.noteOn(\SCmax, {arg vel, note;//from max
+	if(note == 60, {
+		s.reboot({"/Users/EmanTnuocca/Desktop/max/SC3/defs 3.0/z-initials.scd".load});//reset system
+	});
+},srcID:~midiInINSTmax,chan: 0).permanent_(true);
 //cirklon port1 -> make noise sequence etmek icin cv out u var
 ~midiOutKey = MIDIOut.newByName("Cirklon", "Port 2").latency_(0.02);
 //cirklon port3 -> infernoya midi mesajlari yollamak icin var,

@@ -22,7 +22,7 @@ SynthDef(\sd3030303, {
 	//out = RLPFD.ar(out, ((fltAtk + pitch + env2).midicps) * ((1 + tanh(fltRza))/2), fltRz, fltRz);
 	out = RLPFD.ar(out, (fltCtf  + pitch.linlin(0,127,0,fltPitchMod) + env2).midicps, fltRz, fltRza);
 	out = out * env1 *((totVol + amp -15).dbamp);
-	Out.ar(11, out);
+	Out.ar(1, out);
 }).add;
 defme = { arg a1,b1,c1; var a =
 	[

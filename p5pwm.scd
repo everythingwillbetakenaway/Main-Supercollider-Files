@@ -25,7 +25,7 @@ SynthDef(\P5pwm,{|out= 0 freq = 440 amp = 1.0 gate=1 lfoRt = 10 lfoWdt= 0.5 fltC
 		sustainLevel: gate,
 		releaseTime: volRel),gate,doneAction:2);
 	outputstage = Mix(filter)*env * 0.25 * ((totVol + amp -15).dbamp); // * amp *totVol;
-	Out.ar(9,outputstage);
+	Out.ar(1,outputstage);
 }).add;
 defme = { arg a1,b1,c1; var a =
 	[

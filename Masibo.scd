@@ -91,7 +91,7 @@ SynthDef(\MasiboCYMefkt, {|out =0 gate= 1 freqHP= 20 freqLP= 20000 samplerate 44
 MIDIdef.noteOn(\MasiboController, {arg vel, note;
 	case
 
-	{ note == 48 }   {
+	{ (note == 48) || (note == 36) }   {
 		annesi = 512;
 		case
 		{(vr[4] > 63) && (vr[5] > 63) }   { annesi = 4096 }
@@ -123,7 +123,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 				\out, ~effektbusBD
 	]).onFree{noteArrayBD = nil};~test_MasiboBD = 1; }
 
-	{ note == 49 }   {
+	{(note == 49) || (note == 37) }   {
 		if(betassCYM == 0,  {betassCYM = 1;headnoCYM = Synth(\MasiboCYMefkt).onFree{betassCYM = 0}});
 		if(noteArrayCYM !== nil, {noteArrayCYM.set(\gate, -1.1 /*orijinal 1.02di*/); noteArrayCYM = nil});
 		if (vr[10] > 63,
@@ -146,7 +146,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 				\out, ~effektbusCYM
 	]).onFree{noteArrayCYM = nil};~test_MasiboCYM = 1; }
 	//HH lpFrq,rq:lpRq);
-	{ note == 50 }   {
+	{ (note == 50) || (note == 38) }   {
 		//USE IT FOR MONO/POLY
 		//if(betassBD == 0,  {betassBD = 1;headnoBD = Synth(\MasiboBDefkt, [\fftRate, annesi]).onFree{betassBD = 0}});
 		if(noteArrayHH !== nil, {noteArrayHH.set(\gate, -1.001); noteArrayHH = nil});
@@ -194,7 +194,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 		~test_MasiboHH = 1;
 	}
 	//PRC
-	{ note == 51 }   {
+	{ (note == 51) || (note == 39)}   {
 		if(noteArrayPRC !== nil, {noteArrayPRC.set(\gate, -1.001); noteArrayPRC = nil});
 		if(vr[21] > 63,
 			{       //HPF
@@ -240,7 +240,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 		~test_MasiboPRC = 1;
 	}
 	//SD
-	{ note == 52 }   {
+	{ (note == 52) || (note == 40)}   {
 		if(noteArraySD !== nil, {noteArraySD.set(\gate, -1.001); noteArraySD = nil});
 		if(vr[27] > 63,
 			{       //HPF
@@ -286,7 +286,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 		~test_MasiboSD = 1;
 	}
 	//CLP
-	{ note == 53 }   {
+	{ (note == 53) || (note == 41)}   {
 		if(noteArrayCLP !== nil, {noteArrayCLP.set(\gate, -1.001); noteArrayCLP = nil});
 		if(vr[33] > 63,
 			{       //HPF
@@ -332,7 +332,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 		~test_MasiboCLP = 1;
 	}
 	//TOM
-	{ note == 54 }   {
+	{ (note == 54) || (note == 42)}   {
 		if(noteArrayTOM !== nil, {noteArrayTOM.set(\gate, -1.001); noteArrayTOM = nil});
 		if(vr[39] > 63,
 			{       //HPF
@@ -378,7 +378,7 @@ MIDIdef.noteOn(\MasiboController, {arg vel, note;
 		~test_MasiboTOM = 1;
 	}
 	//EFX
-	{ note == 55 }   {
+	{ (note == 55) || (note == 43)}   {
 		if(noteArrayEFX !== nil, {noteArrayEFX.set(\gate, -1.001); noteArrayEFX = nil});
 		if(vr[45] > 63,
 			{       //HPF

@@ -31,7 +31,7 @@ SynthDef(\Appajax2000,
 		out = ((totVol + amp -15).dbamp) * out;
 		Out.ar(effektbus, out)
 }).add;
-SynthDef(\Appajax2000Effect, {|out =5 gate= 1 freqHP= 20 freqLP= 20000 filtRes=0.5 delme = 0.003 delRes = 0.6 delRez = 0.22
+SynthDef(\Appajax2000Effect, {|out =1 gate= 1 freqHP= 20 freqLP= 20000 filtRes=0.5 delme = 0.003 delRes = 0.6 delRez = 0.22
 	delFlt = 10000 delTim = 2 delFed = 0.5 lfoFrq = 1 lfoAmt = 1 dryWet = 0.5 lagKarme = 0.12
 	|
 	var source, limiting, rhpf, rlpf, delayHotLine, delayFiltLine,	delayLFOLine, delayDryWet;

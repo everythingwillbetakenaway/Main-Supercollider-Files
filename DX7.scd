@@ -297,10 +297,10 @@ SynthDef(\InfEfx, {
 	var lfo, pitchenv, output, randomlfo, multiPitch, lfoAmp;
 	//
 	FreeSelf.kr(gate);
-	lfo = Osc.ar(lfo_wave,lfo_speed, lfo_phase, 0.5 * lfoGet2, 0.5 * lfoGet2) + LFNoise0.ar(lfo_speed, 0.5 * lfoGet1, 0.5 * lfoGet1);
-	lfo = lfo * EnvGen.ar(Env.asr(lfo_delay,releaseTime:0.01, curve: -5),envTrig);
-	multiPitch = LinLin.ar(lfo, 0, 1, (pitchCons.neg.midiratio * tameM) + tameC, pitchCons.midiratio);
-	lfoAmp = LinLin.ar(lfo, 0, 1, lfo_amd * (-3/4), 0);
+	lfo = Osc.kr(lfo_wave,lfo_speed, lfo_phase, 0.5 * lfoGet2, 0.5 * lfoGet2) + LFNoise0.kr(lfo_speed, 0.5 * lfoGet1, 0.5 * lfoGet1);
+	lfo = lfo * EnvGen.kr(Env.asr(lfo_delay,releaseTime:0.01, curve: -5),envTrig);
+	multiPitch = LinLin.kr(lfo, 0, 1, (pitchCons.neg.midiratio * tameM) + tameC, pitchCons.midiratio);
+	lfoAmp = LinLin.kr(lfo, 0, 1, lfo_amd * (-3/4), 0);
 
 	//Poll.ar(Impulse.ar(10), lfoAmp);
 	//PHASE PART++
@@ -311,8 +311,8 @@ SynthDef(\InfEfx, {
 	//square en asaidan
 	//sine sifirdan baslio
 
-	Out.ar(busMePitch, multiPitch);
-	Out.ar(busMeAmp, lfoAmp)
+	Out.kr(busMePitch, multiPitch);
+	Out.kr(busMeAmp, lfoAmp)
 }).add;
 
 
@@ -358,12 +358,12 @@ SynthDef(\DX7, {
 	envAmp6 = EnvGen.kr(envEnv6, gate, doneAction:0 );
 	//	envEnv1.test.plot;
 	ctls = [
-		[coars1 * fine_1 * ((pitch * noteBlok1) + ((detun1-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp1 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens1/3)).dbamp],
-		[coars2 * fine_2 * ((pitch  * noteBlok2) + ((detun2-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp2 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens2/3)).dbamp],
-		[coars3 * fine_3 * ((pitch * noteBlok3) + ((detun3-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp3 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens3/3)).dbamp],
-		[coars4 * fine_4 * ((pitch  * noteBlok4) + ((detun4-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp4 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens4/3)).dbamp],
-		[coars5 * fine_5 * ((pitch  * noteBlok5) + ((detun5-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp5 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens5/3)).dbamp],
-		[coars6 * fine_6 * ((pitch  * noteBlok6) + ((detun6-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp6 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens6/3)).dbamp]
+		[coars1 * fine_1 * ((pitch * noteBlok1) + ((detun1-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp1 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens1/3)).dbamp],
+		[coars2 * fine_2 * ((pitch  * noteBlok2) + ((detun2-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp2 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens2/3)).dbamp],
+		[coars3 * fine_3 * ((pitch * noteBlok3) + ((detun3-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp3 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens3/3)).dbamp],
+		[coars4 * fine_4 * ((pitch  * noteBlok4) + ((detun4-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp4 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens4/3)).dbamp],
+		[coars5 * fine_5 * ((pitch  * noteBlok5) + ((detun5-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp5 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens5/3)).dbamp],
+		[coars6 * fine_6 * ((pitch  * noteBlok6) + ((detun6-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp6 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens6/3)).dbamp]
 	];
 	mods = [
 		[dn0, dn1, dn2, dn3, dn4, dn5],

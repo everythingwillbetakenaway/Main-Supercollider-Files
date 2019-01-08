@@ -1,18 +1,18 @@
-// Supercollider DX7 Clone v1.0
+// Supercollider DX8 Clone v1.0
 // Implemented by Aziz Ege Gonul for more info go to www.egegonul.com
 // Under GNU GPL 3 as per SuperCollider license
 
 /*
 %%%---INSTRUCTIONS---%%%
-1) Put the DX7.afx file in the same directory of this file. (If you don't have it you can download it from "http://www.egegonul.com/DX7.afx.zip")
+1) Put the DX8.afx file in the same directory of this file. (If you don't have it you can download it from "http://www.egegonul.com/DX8.afx.zip")
 2) Compile the parenthesis below.
-3) Run the ~mainCaller.value function with the desired note, velocity and preset values.
+3) Run the ~mainCaller2.value function with the desired note, velocity and preset values.
 
 important notes:
 -FM7.ar plugin is needed (It comes with the SC3 plugins).
 -Velocity value, drastically changes the overall timbre of sound.
 -Gate time is in use, so in order to close the node, velocity value zero must be send to the same note number. (Just like the MIDI convention)
--If you change presets on the run, newly opened notes with new presets might affect the existing notes. Most of the time this is a very minimal effect because it only affects the global LFO value. This happens due to the architecture design of DX7. Remember this is a single clone of DX7, not a clones of clones.
+-If you change presets on the run, newly opened notes with new presets might affect the existing notes. Most of the time this is a very minimal effect because it only affects the global LFO value. This happens due to the architecture design of DX8. Remember this is a single clone of DX8, not a clones of clones.
 -Not all presets have velocity depth. So it might sound same no matter what the velocity is.
 -Sometimes you see "FAILURE IN SERVER /n_free Node 808 not found" message, this is due to the DetectSilence.ar UGen which helps me to close some forgotten notes in combination with FreeSelfWhenDone (Sometimes nodes skips detect silence because of DC component). FreeSelfDone commmand has a 10 second duration. So if you need longer duration please increase the argument but don't comment out completely.
 -You can ignore all the commented out areas. It is mostly for debug use. Everything works perfectly. Nothing to worry about.
@@ -21,15 +21,15 @@ important notes:
 //note value range: 0 - 127
 //velocity value range: 0 - 127
 //preset value range: 0 - 16383 (2 ^ 14)
-//example: ~mainCaller.value(note,velocity,preset)
+//example: ~mainCaller2.value(note,velocity,preset)
 //for more extra info go to the end of this file
 */
 
 //First compile below
 (
-var mainCaller, presetz = Array.fill(128, 63),
+var mainCaller2, presetz2 = Array.fill(128, 63),
 
-novaDX7 = ParGroup.new,
+novaDX8 = ParGroup.new,
 
 coarseArrR = #[0.5,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31],
 
@@ -69,14 +69,14 @@ fineArrF = #[
 
 voice_eg_rate_rise_duration = #[ 39.638000,  37.013000,  34.388000,  31.763000,  27.210500,     22.658000,  20.408000,  18.158000,  15.908000,  14.557000,     13.206000,  12.108333,  11.010667,   9.913000,   8.921000,     7.929000,   7.171333,   6.413667,   5.656000,   5.307000,      4.958000,   4.405667,   3.853333,   3.301000,   2.889000,      2.477000,   2.313000,   2.149000,   1.985000,   1.700500,      1.416000,   1.274333,   1.132667,   0.991000,   0.909000,      0.827000,   0.758000,   0.689000,   0.620000,   0.558000,      0.496000,   0.448667,   0.401333,   0.354000,   0.332000,      0.310000,   0.275667,   0.241333,   0.207000,   0.180950,      0.154900,   0.144567,   0.134233,   0.123900,   0.106200,      0.088500,   0.079667,   0.070833,   0.062000,   0.056800,      0.051600,   0.047300,   0.043000,   0.038700,   0.034800,      0.030900,   0.028000,   0.025100,   0.022200,   0.020815,      0.019430,   0.017237,   0.015043,   0.012850,   0.011230,      0.009610,   0.009077,   0.008543,   0.008010,   0.006960,      0.005910,   0.005357,   0.004803,   0.004250,   0.003960,      0.003670,   0.003310,   0.002950,   0.002590,   0.002420,      0.002250,   0.002000,   0.001749,   0.001499,   0.001443,      0.001387,   0.001242,   0.001096,   0.000951,   0.000815,      0.000815,   0.000815,   0.000815,   0.000815,   0.000815,      0.000815,   0.000815,   0.000815,   0.000815,   0.000815,      0.000815,   0.000815,   0.000815,   0.000815,   0.000815,      0.000815,   0.000815,   0.000815,   0.000815,   0.000815,      0.000815,   0.000815,   0.000815,   0.000815,   0.000815,      0.000815,   0.000815,   0.000815],
 
-dx7_voice_eg_rate_rise_percent = #[    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.005007, 0.010005, 0.015003,    0.020000, 0.028000, 0.036000, 0.044000, 0.052000,    0.060000, 0.068000, 0.076000, 0.084000, 0.092000,    0.100000, 0.108000, 0.116000, 0.124000, 0.132000,    0.140000, 0.150000, 0.160000, 0.170000, 0.180000,    0.190000, 0.200000, 0.210000, 0.220000, 0.230000,    0.240000, 0.251000, 0.262000, 0.273000, 0.284000,    0.295000, 0.306000, 0.317000, 0.328000, 0.339000,    0.350000, 0.365000, 0.380000, 0.395000, 0.410000,    0.425000, 0.440000, 0.455000, 0.470000, 0.485000,    0.500000, 0.520000, 0.540000, 0.560000, 0.580000,    0.600000, 0.620000, 0.640000, 0.660000, 0.680000,    0.700000, 0.732000, 0.764000, 0.796000, 0.828000,    0.860000, 0.895000, 0.930000, 0.965000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000],
+dx8_voice_eg_rate_rise_percent = #[    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.000010, 0.000010, 0.000010,    0.000010, 0.000010, 0.005007, 0.010005, 0.015003,    0.020000, 0.028000, 0.036000, 0.044000, 0.052000,    0.060000, 0.068000, 0.076000, 0.084000, 0.092000,    0.100000, 0.108000, 0.116000, 0.124000, 0.132000,    0.140000, 0.150000, 0.160000, 0.170000, 0.180000,    0.190000, 0.200000, 0.210000, 0.220000, 0.230000,    0.240000, 0.251000, 0.262000, 0.273000, 0.284000,    0.295000, 0.306000, 0.317000, 0.328000, 0.339000,    0.350000, 0.365000, 0.380000, 0.395000, 0.410000,    0.425000, 0.440000, 0.455000, 0.470000, 0.485000,    0.500000, 0.520000, 0.540000, 0.560000, 0.580000,    0.600000, 0.620000, 0.640000, 0.660000, 0.680000,    0.700000, 0.732000, 0.764000, 0.796000, 0.828000,    0.860000, 0.895000, 0.930000, 0.965000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000, 1.000000, 1.000000,    1.000000, 1.000000, 1.000000],
 
 velTable = #[-99.0,-10.295511,-9.709229,-9.372207,-9.121093,-8.629703,-8.441805,-8.205647,-7.810857,-7.653259,-7.299901,-7.242308,-6.934396, -6.727051,-6.594723,-6.427755,-6.275133,-6.015212,-5.843023,-5.828787,-5.725659,-5.443202,-5.421110,-5.222133,-5.160615,-5.038265,-4.948225,-4.812105,    -4.632120,-4.511531,-4.488645,-4.370043,-4.370610,-4.058591,-4.066902,-3.952988,-3.909686,-3.810096,-3.691883,-3.621306,-3.527286,-3.437519,-3.373512,-3.339195,-3.195983, -3.167622, -3.094788, -2.984045,-2.937463, -2.890713, -2.890660, -2.691874,-2.649229, -2.544696, -2.498147, -2.462573,-2.396637, -2.399795, -2.236338, -2.217625, -2.158336, -2.135569, -1.978521, -1.913965,-1.937082, -1.752275, -1.704013, -1.640514,-1.598791, -1.553859, -1.512187, -1.448088,-1.450443, -1.220567, -1.182340, -1.123139,-1.098469, -1.020642, -0.973039, -0.933279,-0.938035, -0.757380, -0.740860, -0.669721,-0.681526, -0.555390, -0.519321, -0.509318,-0.456936, -0.460622, -0.290578, -0.264393,-0.252716, -0.194141, -0.153566, -0.067842,-0.033402, -0.054947,  0.012860, 0.000000,-0.009715,  0.236054,  0.273956,  0.271968,0.330177,  0.345427,  0.352333,  0.433861,0.442952,  0.476411,  0.539632,  0.525355,0.526115,  0.707022, 0.701551,  0.734875,0.739149,  0.794320,  0.801578,  0.814225,0.818939,  0.897102,  0.895082,  0.927998,0.929797,  0.956112,  0.956789,  0.958121],
 
 /* This table converts LFO speed to frequency in Hz. It is based on
 * interpolation of Jamie Bullock's measurements. */
 
-dx7_voice_lfo_frequency = #[
+dx8_voice_lfo_frequency = #[
 	0.062506,  0.124815,  0.311474,  0.435381,  0.619784,
 	0.744396,  0.930495,  1.116390,  1.284220,  1.496880,
 	1.567830,  1.738994,  1.910158,  2.081322,  2.252486,
@@ -115,7 +115,7 @@ dx7_voice_lfo_frequency = #[
 * full octave, since that's one thing that's always bugged me about
 * my TX7.  Thoughts? ] */
 
-dx7_voice_pms_to_semitones= #[ //8
+dx8_voice_pms_to_semitones= #[ //8
 	0.0, 0.450584, 0.900392, 1.474744,
 	2.587385, 4.232292, 6.982097, /* 11.722111 */ 12.0],
 
@@ -126,7 +126,7 @@ dx7_voice_pms_to_semitones= #[ //8
 * using this code:
 *   perl -e 'for ($i = 0; $i <= 99; $i++) { printf " %f,\n", exp($i * 0.0428993 - 0.285189); }' >x.c
 * and is probably rather rough in its accuracy. -FIX- */
-dx7_voice_amd_to_ol_adjustment = #[ //100
+dx8_voice_amd_to_ol_adjustment = #[ //100
 	0.0, 0.784829, 0.819230, 0.855139, 0.892622, 0.931748,
 	0.972589, 1.015221, 1.059721, 1.106171, 1.154658, 1.205270,
 	1.258100, 1.313246, 1.370809, 1.430896, 1.493616, 1.559085,
@@ -153,7 +153,7 @@ dx7_voice_amd_to_ol_adjustment = #[ //100
 * is exagerated to 0 = -48 and 99 => 47.624.  This is based on
 * measurements I took from my TX7. */
 
-dx7_voice_pitch_level_to_shift = #[ //128
+dx8_voice_pitch_level_to_shift = #[ //128
 	-48.000000, -43.497081, -38.995993, -35.626132, -31.873615,
 	-28.495880, -25.500672, -22.872620, -20.998167, -19.496961,
 	-18.373238, -17.251065, -16.122139, -15.375956, -14.624487,
@@ -178,7 +178,7 @@ dx7_voice_pitch_level_to_shift = #[ //128
 	48.0, 48.0, 48.0, 48.0, 48.0],
 /*
 
-adepth = dx7_voice_amd_to_ol_adjustment[voice->lfo_amd];
+adepth = dx8_voice_amd_to_ol_adjustment[voice->lfo_amd];
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -192,9 +192,9 @@ if (adepth + mdepth + edepth > 127.5f)
 edepth = 127.5f - (adepth + mdepth);
 
 */
-dx7patches = Array.newClear(16384),
+dx8patches = Array.newClear(16384),
 vr = Array.fill(256, 63),
-noteArrayDX7 = Array.newClear(128),
+noteArrayDX8 = Array.newClear(128),
 defme, defjamHead0, defjamHead1, betass = 0, headno, defPitchEnv, noteParser,
 scale_vrv, envCal, dumm, selector = #[66, 48, 54, 60, 66],
 feedbackSel = #[
@@ -297,10 +297,10 @@ SynthDef(\InfEfx2, {
 	var lfo, pitchenv, output, randomlfo, multiPitch, lfoAmp;
 	//
 	FreeSelf.kr(gate);
-	lfo = Osc.ar(lfo_wave,lfo_speed, lfo_phase, 0.5 * lfoGet2, 0.5 * lfoGet2) + LFNoise0.ar(lfo_speed, 0.5 * lfoGet1, 0.5 * lfoGet1);
-	lfo = lfo * EnvGen.ar(Env.asr(lfo_delay,releaseTime:0.01, curve: -5),envTrig);
-	multiPitch = LinLin.ar(lfo, 0, 1, (pitchCons.neg.midiratio * tameM) + tameC, pitchCons.midiratio);
-	lfoAmp = LinLin.ar(lfo, 0, 1, lfo_amd * (-3/4), 0);
+	lfo = Osc.kr(lfo_wave,lfo_speed, lfo_phase, 0.5 * lfoGet2, 0.5 * lfoGet2) + LFNoise0.kr(lfo_speed, 0.5 * lfoGet1, 0.5 * lfoGet1);
+	lfo = lfo * EnvGen.kr(Env.asr(lfo_delay,releaseTime:0.01, curve: -5),envTrig);
+	multiPitch = LinLin.kr(lfo, 0, 1, (pitchCons.neg.midiratio * tameM) + tameC, pitchCons.midiratio);
+	lfoAmp = LinLin.kr(lfo, 0, 1, lfo_amd * (-3/4), 0);
 
 	//Poll.ar(Impulse.ar(10), lfoAmp);
 	//PHASE PART++
@@ -311,8 +311,8 @@ SynthDef(\InfEfx2, {
 	//square en asaidan
 	//sine sifirdan baslio
 
-	Out.ar(busMePitch, multiPitch);
-	Out.ar(busMeAmp, lfoAmp)
+	Out.kr(busMePitch, multiPitch);
+	Out.kr(busMeAmp, lfoAmp)
 }).add;
 
 
@@ -358,12 +358,12 @@ SynthDef(\DX8, {
 	envAmp6 = EnvGen.kr(envEnv6, gate, doneAction:0 );
 	//	envEnv1.test.plot;
 	ctls = [
-		[coars1 * fine_1 * ((pitch * noteBlok1) + ((detun1-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp1 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens1/3)).dbamp],
-		[coars2 * fine_2 * ((pitch  * noteBlok2) + ((detun2-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp2 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens2/3)).dbamp],
-		[coars3 * fine_3 * ((pitch * noteBlok3) + ((detun3-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp3 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens3/3)).dbamp],
-		[coars4 * fine_4 * ((pitch  * noteBlok4) + ((detun4-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp4 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens4/3)).dbamp],
-		[coars5 * fine_5 * ((pitch  * noteBlok5) + ((detun5-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp5 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens5/3)).dbamp],
-		[coars6 * fine_6 * ((pitch  * noteBlok6) + ((detun6-7)/32)) * (envAmpP.midiratio) * Lag2.ar(In.ar(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp6 * (Lag2.ar(In.ar(busMeAmp),0.01) * (modSens6/3)).dbamp]
+		[coars1 * fine_1 * ((pitch * noteBlok1) + ((detun1-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp1 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens1/3)).dbamp],
+		[coars2 * fine_2 * ((pitch  * noteBlok2) + ((detun2-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp2 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens2/3)).dbamp],
+		[coars3 * fine_3 * ((pitch * noteBlok3) + ((detun3-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp3 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens3/3)).dbamp],
+		[coars4 * fine_4 * ((pitch  * noteBlok4) + ((detun4-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp4 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens4/3)).dbamp],
+		[coars5 * fine_5 * ((pitch  * noteBlok5) + ((detun5-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp5 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens5/3)).dbamp],
+		[coars6 * fine_6 * ((pitch  * noteBlok6) + ((detun6-7)/32)) * (envAmpP.midiratio) * Lag2.kr(In.kr(busMePitch),0.01),  Rand(0,2pi) * osc_sync, envAmp6 * (Lag2.kr(In.kr(busMeAmp),0.01) * (modSens6/3)).dbamp]
 	];
 	mods = [
 		[dn0, dn1, dn2, dn3, dn4, dn5],
@@ -390,7 +390,7 @@ SynthDef(\DX8, {
 	out = out / outMult;
 	//DetectSilence.ar(out, 0.01, 0.2,doneAction:2);
 	//out = out * ((totVol -15).dbamp);
-	Out.ar(4, out); //orj
+	Out.ar(10, out); //orj
 
 }).add;
 
@@ -461,7 +461,7 @@ envCal = { arg // Area of hardcore envelope calculation function.
 		},
 
 		{
-			(voice_eg_rate_rise_duration[vrx] * (dx7_voice_eg_rate_rise_percent[((((vr2 * vrv) / 99) + velFin).clip(0,99)).asInt] - dx7_voice_eg_rate_rise_percent[((((vr1 * vrv) / 99) + velFin).clip(0,99)).asInt]))
+			(voice_eg_rate_rise_duration[vrx] * (dx8_voice_eg_rate_rise_percent[((((vr2 * vrv) / 99) + velFin).clip(0,99)).asInt] - dx8_voice_eg_rate_rise_percent[((((vr1 * vrv) / 99) + velFin).clip(0,99)).asInt]))
 		}
 	);
 	//[dbStr, dbEnd, endR0].postln;
@@ -487,10 +487,10 @@ defjamHead1 = {
 defjamHead0 = {
 	var cba = [], lfoDepth, lfoGet1, lfoGet2;
 			if(vr[133] == 5, {lfoGet1=1; lfoGet2 =0}, {lfoGet1 = 0; lfoGet2 =1 });
-			lfoDepth = (dx7_voice_pms_to_semitones[vr[138]]) * (vr[135] / 99);
+			lfoDepth = (dx8_voice_pms_to_semitones[vr[138]]) * (vr[135] / 99);
 			//lfoDepth.postln;
 			cba = [
-				\lfo_speed, dx7_voice_lfo_frequency[vr[132]],
+				\lfo_speed, dx8_voice_lfo_frequency[vr[132]],
 				\lfo_wave, (waveform_selector[vr[133]]).bufnum, //random signal icinde yap,
 				\lfo_phase, phase_selector[vr[133]],
 				\envTrig, 0,
@@ -502,7 +502,7 @@ defjamHead0 = {
 				\tameM, pitchTameMult[vr[133]],
 				\tameC, pitchTameConst[vr[133]],
 				\lfo_delay, ((vr[134]).clip(0,99)).linlin(0,99,0.01,3.4),//lineer ramp ile carp
-				\lfo_amd, dx7_voice_amd_to_ol_adjustment[vr[136]]
+				\lfo_amd, dx8_voice_amd_to_ol_adjustment[vr[136]]
 			];
 			//cba.postln;
 			cba;
@@ -514,11 +514,11 @@ defPitchEnv = { arg rate_1, rate_2, rate_3, rate_4, level_1, level_2, level_3, l
 	var endy,
 	envPL0, envPL1, envPL2, envPL3, envPL4, envPR0, envPR1, envPR2,envPR3;
 	//functions start here
-	envPL0 = dx7_voice_pitch_level_to_shift[level_4];
-	envPL1 = dx7_voice_pitch_level_to_shift[level_1];
-	envPL2 = dx7_voice_pitch_level_to_shift[level_2];
-	envPL3 = dx7_voice_pitch_level_to_shift[level_3];
-	envPL4 = dx7_voice_pitch_level_to_shift[level_4];
+	envPL0 = dx8_voice_pitch_level_to_shift[level_4];
+	envPL1 = dx8_voice_pitch_level_to_shift[level_1];
+	envPL2 = dx8_voice_pitch_level_to_shift[level_2];
+	envPL3 = dx8_voice_pitch_level_to_shift[level_3];
+	envPL4 = dx8_voice_pitch_level_to_shift[level_4];
 	envPR0 = exp((rate_1 - 70.337897) / -25.580953) * abs((envPL1 - envPL0) / 96.0) * 2.45;
 	envPR1 = exp((rate_2 - 70.337897) / -25.580953) * abs((envPL2 - envPL1) / 96.0) * 2.45;
 	envPR2 = exp((rate_3 - 70.337897) / -25.580953) * abs((envPL3 - envPL2) / 96.0) * 2.45;
@@ -632,30 +632,30 @@ noteParser = { arg vel, note;
 			if(vel > 0,
 				{
 					//150.do({ arg c; ("cc#" ++ c.asString ++ " = " ++ vr[c]).postln}); //general cc printer, rates are not inverted.
-					if(noteArrayDX7[note] !== nil,noteArrayDX7[note].free);
+					if(noteArrayDX8[note] !== nil,noteArrayDX8[note].free);
 					if(vr[137] == 1, {//lfo sync controller
 						if(betass == 1,   {
 							headno.free;
 						});
 						betass = 1;
-						headno = Synth.before(novaDX7, \InfEfx2, defjamHead0.());
+						headno = Synth.before(novaDX8, \InfEfx2, defjamHead0.());
 					},
 					{
 						if(betass == 0,   {
 							betass = 1;
-							headno = Synth.before(novaDX7, \InfEfx2, defjamHead0.())
+							headno = Synth.before(novaDX8, \InfEfx2, defjamHead0.())
 						},
 						{
 							headno.set(defjamHead0.())
 						});
 					});
-					noteArrayDX7[note] = Synth(\DX8 ,defme.value(note, vel),novaDX7);
-					//noteArrayDX7[note] = Synth(\DX7 ,defme.value(note, vel), novaDX7); //orjburayi addtotail diye degistirdin
+					noteArrayDX8[note] = Synth(\DX8 ,defme.value(note, vel),novaDX8);
+					//noteArrayDX8[note] = Synth(\DX8 ,defme.value(note, vel), novaDX8); //orjburayi addtotail diye degistirdin
 
 				},
 				{
-					noteArrayDX7[note].set(\gate,0);
-					noteArrayDX7[note] = nil;
+					noteArrayDX8[note].set(\gate,0);
+					noteArrayDX8[note] = nil;
 
 		})
 	}
@@ -669,21 +669,22 @@ f = { arg x, y ,z; //y value, z cc no
 	)
 };
 //Creating a patch array from .afx file to prevent "unsaved file" error.
+
 r = File("DX7.afx".resolveRelative,"r");
 16384.do({arg item;
-	dx7patches[item] = r.getLine;
+	dx8patches[item] = r.getLine;
 });
 
-mainCaller = { arg x, y, z;
+mainCaller2 = { arg x, y, z;
 	if(y > 0,{
-//		r = File("DX7.afx".resolveRelative,"r");
-		//r = File("/Users/EmanTnuocca/Desktop/3/DX7.afx","r");
+//		r = File("DX8.afx".resolveRelative,"r");
+		//r = File("/Users/EmanTnuocca/Desktop/3/DX8.afx","r");
 
-		g = dx7patches[z];
+		g = dx8patches[z];
 		145.do({arg item;
 			k = (g.at((item*2)) ++ g.at((item*2) + 1)).asInt;
 			f.value(cirklonCCparse[item][0],cirklonCCparse[item][1],k);
-			//~midiOutDX7.control(~cirklonCCparse[item][0],~cirklonCCparse[item][1],k);
+			//~midiOutDX8.control(~cirklonCCparse[item][0],~cirklonCCparse[item][1],k);
 
 		});
 	});
@@ -691,29 +692,29 @@ mainCaller = { arg x, y, z;
 
 };
 MIDIdef.noteOn(\DX8, {arg vel, note;
-	mainCaller.value(note, vel, (presetz[0] * 128) + presetz[1]);
+	mainCaller2.value(note, vel, (presetz2[0] * 128) + presetz2[1]);
 },srcID:~midiInINST4,chan:5).add;
 
 MIDIdef.cc(\DX8CC, {arg ...args;
-	presetz[args[1]] = args[0];
+	presetz2[args[1]] = args[0];
 },(0..1),srcID:~midiInINST4,chan:5).add;
 
 MIDIdef.noteOff(\DX8off, {arg vel, note;
-	mainCaller.value(note, 0);
+	mainCaller2.value(note, 0);
 },srcID:~midiInINST4,chan:5).add;
 )
 
 /*
 extra notes from the developer:
--I've designed this instrument as accurately as possible to the original DX7, all the presets are collected from the vast DX7 libraries across the internet. Some presets were corrupt so I cleaned them according to their unused indexes but there might be still some that might not work. (I haven't found out yet)
--I've worked on this project extensively during my STEIM internship, and compared every tiny bit of detail with the Original DX7 and reverse engineered the C++ code from the best parts of DX7 VSTs out there.
+-I've designed this instrument as accurately as possible to the original DX8, all the presets are collected from the vast DX8 libraries across the internet. Some presets were corrupt so I cleaned them according to their unused indexes but there might be still some that might not work. (I haven't found out yet)
+-I've worked on this project extensively during my STEIM internship, and compared every tiny bit of detail with the Original DX8 and reverse engineered the C++ code from the best parts of DX8 VSTs out there.
 -File extension .afx is just an arbitrary name, I chose it because of my admiration to Mr.RichardDavidJames <3.
--Original DX7 sysex files were converted with the help of Propellerhead's DX7 conversion tool and from there I implemented my own convention, which is just sequence of numbers stacked together, each line is one preset.
+-Original DX8 sysex files were converted with the help of Propellerhead's DX8 conversion tool and from there I implemented my own convention, which is just sequence of numbers stacked together, each line is one preset.
 
 Things to be implemented in future:
--I will implement a function which will help to send all parameters of DX7. (It has 146 different parameters).
--Adding your own DX7 preset option will be implemented.
--Add some examples of original DX7 sounds compared with this Synthdef in order to show accuracy. (During my initial tests it was hard to determine which one is which with the blind tests)
+-I will implement a function which will help to send all parameters of DX8. (It has 146 different parameters).
+-Adding your own DX8 preset option will be implemented.
+-Add some examples of original DX8 sounds compared with this Synthdef in order to show accuracy. (During my initial tests it was hard to determine which one is which with the blind tests)
 -That's all folks, for questions just drop a mail to egegonul@egegonul.com
 
 */

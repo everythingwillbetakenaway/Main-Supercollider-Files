@@ -52,7 +52,7 @@ SynthDef(\Manchun,{ arg out = 0,  bufnum = ~blls[62],  freq = 60, amp = 1, gate 
 		(freq * folHPF).midicps + Lag2.ar(LinExp.ar(genHPF,0,1,frqHPF,hpfMod),0.002),40,20000),mul: 0.7);
 	//Output
 	var lstout = hiPass * genVol * ((amp + trkVol - 30).dbamp);
-	Out.ar(10,Mix.ar(lstout));
+	Out.ar(1,Mix.ar(lstout));
 
 }).add;
 defme = { arg a1,b1,c1; var a4 =

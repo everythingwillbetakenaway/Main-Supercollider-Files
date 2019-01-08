@@ -21,7 +21,7 @@ SynthDef(\Massaka, {
 	var filterme = Resonz.ar(outputstage2, Lag2.kr(Clip.kr(fltFrq + env2, 20, 20000),0.01), fltBW);
 	var outring = filterme * ((totVol + amp -15).dbamp);
 		outring = LeakDC.ar(outring);
-	Out.ar(7, outring)
+	Out.ar(1, outring)
 }).add;
 defme = { arg a1,b1,c1; var a =
 	[

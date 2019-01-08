@@ -79,7 +79,7 @@ SynthDef(\Senjin,{
 	chorus = Compander.ar(4*(filter + chorus),filter,0.4,1,4,mul: 0.5);
 	chorus= chorus * Lag2.kr(((totVol.linlin(0,127,-24,24) -15 + amp.linlin(0,127,-12,12)).dbamp),0.05);
 	chorus = Mix.new(chorus);
-	Out.ar(6, chorus);
+	Out.ar(1, chorus);
 
 
 }).add;
